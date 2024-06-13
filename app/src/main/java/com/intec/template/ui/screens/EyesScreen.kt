@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -44,6 +45,7 @@ fun EyesScreen(
     val chatGPTManager = ChatGPTManager(robotViewModel.tokenGPT)
 
     var hasSpoken by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
 
     LaunchedEffect(speechText) {
         Log.d("speech", speechText)
@@ -55,15 +57,15 @@ fun EyesScreen(
 
             }
         } else if (speechText.contains("peter", ignoreCase = true)) {
+            isLoading = true
             chatGPTManager.fetchGPT3ChatResponse(speechText) { response ->
+                isLoading = false
                 robotViewModel.speak(response, true) {
                     Log.d("ChatGPT", "Response spoken: $response")
                 }
             }
         }
     }
-
-
 
     Box(
         Modifier
@@ -74,7 +76,7 @@ fun EyesScreen(
             .background(Color.Black)
             .fillMaxSize()
     ) {
-        ImageExample(faceType, interactionState, speechText)
+        ImageExample(faceType, interactionState, speechText, isLoading)
     }
 }
 
@@ -82,7 +84,8 @@ fun EyesScreen(
 fun ImageExample(
     faceType: Face,
     interactionState: InteractionState,
-    speechText: String
+    speechText: String,
+    isLoading: Boolean
 ) {
     Log.d("InteractionState", "$interactionState")
     val imageEmotionsLoader = ImageLoader.Builder(LocalContext.current)
@@ -229,17 +232,24 @@ fun ImageExample(
                     .background(Color.Transparent)
                     .padding(10.dp)
             ) {
-                Text(
-                    text = speechText,
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 1,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .fillMaxWidth()
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center),
+                        color = Color.White
+                    )
+                } else {
+                    Text(
+                        text = speechText,
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .fillMaxWidth()
+                    )
+                }
             }
         }
     }

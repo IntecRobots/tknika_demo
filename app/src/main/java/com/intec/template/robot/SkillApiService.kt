@@ -46,6 +46,7 @@ class SkillApiService @Inject constructor(
 
         override fun onStop() {
             Log.d("SkillApiService", "Listening Stopped")
+            partialSpeechResult.postValue("")
         }
 
         override fun onVolumeChange(volume: Int) {

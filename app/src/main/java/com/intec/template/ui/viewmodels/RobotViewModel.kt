@@ -15,6 +15,7 @@ import com.intec.template.data.Face
 import com.intec.template.data.InteractionState
 import com.intec.template.robot.RobotManager
 import com.intec.template.robot.SkillApiService
+import com.intec.template.robot.data.Place
 import com.intec.template.robot.listeners.SpeechRecognitionListener
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -41,20 +42,19 @@ class RobotViewModel @Inject constructor(
     private val preferencesRepository: PreferencesRepository
 ) : AndroidViewModel(application = Application()), SpeechRecognitionListener {
 
-    private val _isListening = MutableLiveData(false)
     private val _recognizedText = MutableLiveData<String>()
     private val _speechText = MutableStateFlow("")
     val speechText = _speechText.asStateFlow()
-    private val _navigationState = MutableStateFlow(NavigationState.EyesScreen)
+
+    val destinationsList: LiveData<List<String>> = robotManager.getPlaceList()
 
     // Caras
     val faceTypeState: StateFlow<Face> = robotManager.faceType
     var interactionState = MutableStateFlow(InteractionState.NONE)
-
-    var isPaused = MutableStateFlow(true)
-    private var detectedPerson: List<Person>? = robotManager.detectPerson(0)
     var focusJob: Job? = null
-    var isFollowing = MutableStateFlow(false)
+
+    private val _places = MutableStateFlow<List<Place>>(emptyList())
+    val places: StateFlow<List<Place>> get() = _places.asStateFlow()
 
     var apiKey: String = preferencesRepository.getApiKey()
     var tokenGPT: String = preferencesRepository.getTokenGPT()
@@ -65,6 +65,8 @@ class RobotViewModel @Inject constructor(
     enum class NavigationState {
         EyesScreen,
     }
+
+
 
     init {
         Log.d("RobotViewModel", "RobotViewModel Init")
@@ -86,15 +88,17 @@ class RobotViewModel @Inject constructor(
         robotManager.stopFocusFollow()
     }
 
+    fun getPlaces() {
+        val places = robotManager.getPlaceList()
+        Log.d("mainScreenPlaces", places.toString())
+    }
+
     fun updateTokenGPT(newTokenGPT: String) {
         tokenGPT = newTokenGPT
         preferencesRepository.setTokenGPT(newTokenGPT)
     }
 
-    fun updateApiKey(newApiKey: String) {
-        apiKey = newApiKey
-        preferencesRepository.setApiKey(newApiKey)
-    }
+
 
     fun openVideoCall(onSuccess: () -> Unit, onError: (String) -> Unit) {
         Log.d("RobotViewModel", "Estableciendo videollamada")
@@ -149,19 +153,7 @@ class RobotViewModel @Inject constructor(
         }
     }
 
-    suspend fun getRobotSn(): String = suspendCancellableCoroutine { continuation ->
-        val status = RobotApi.getInstance().getRobotSn(
-            object : CommandListener() {
-                override fun onResult(result: Int, message: String) {
-                    if (Definition.RESULT_OK == result) {
-                        continuation.resume(message)
-                    } else {
-                        continuation.resumeWithException(RuntimeException("Failed to get SN: $message"))
-                    }
-                }
-            }
-        )
-    }
+
 
     fun registrarPersonListener() {
         focusJob?.cancel()
@@ -171,16 +163,9 @@ class RobotViewModel @Inject constructor(
         }
     }
 
-    fun escuchar(listen: Boolean) {
-        Log.d("speech", "te escucho hijo de puta $listen")
-        robotManager.listening(listen)
-    }
 
-    fun desregistrarPersonListener() {
-        focusJob?.cancel()
-        detectedPerson = null
-        robotManager.unregisterPersonListener()
-    }
+
+
 
     private fun configurePersonDetection() {
         Log.d("RobotViewModel", "Configurar detección de personas")
@@ -212,25 +197,7 @@ class RobotViewModel @Inject constructor(
         robotManager.faceType.value = face
     }
 
-    fun pararSeguimiento() {
-        Log.d("RobotViewModel", "Comenzar seguimiento")
-        robotManager.stopDetection()
-    }
 
-    fun toggleListening() {
-        val currentState = _isListening.value ?: false
-        _isListening.value = !currentState
-        if (_isListening.value == true) {
-            // Iniciar escucha
-        } else {
-            // Detener escucha
-            _recognizedText.value = "" // Opcional: limpiar el texto al detener
-        }
-    }
-
-    fun updateRecognizedText(text: String) {
-        _recognizedText.postValue(text)
-    }
 
     override fun onSpeechPartialResult(result: String) {
         _recognizedText.postValue(result)
@@ -245,6 +212,10 @@ class RobotViewModel @Inject constructor(
 
     fun speak(text: String, appendNewLine: Boolean, onSpeakComplete: () -> Unit) {
         robotManager.speak(text, appendNewLine, onSpeakComplete)
+    }
+
+    fun irA(destino: String){
+        robotManager.goTo(destino)
     }
 }
 

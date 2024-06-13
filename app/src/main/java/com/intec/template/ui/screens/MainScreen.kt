@@ -1,14 +1,18 @@
 package com.intec.template.ui.screens
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -25,6 +29,7 @@ import com.intec.template.navigation.AppScreens
 import com.intec.template.ui.viewmodels.RobotViewModel
 import com.intec.t2o.network.SocketClient
 import com.intec.t2o.network.WebSocketMessageListener
+import com.intec.template.robot.RobotManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -37,6 +42,8 @@ fun MainScreen(navController: NavController, robotViewModel: RobotViewModel) {
     var getChatGptToken by remember { mutableStateOf(robotViewModel.tokenGPT) }
     val coroutineScope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    val places by robotViewModel.places.collectAsState()
 
     // Estado para controlar la última vez que hubo interacción del usuario
     var lastInteractionTime by remember { mutableStateOf(System.currentTimeMillis()) }
@@ -83,8 +90,26 @@ fun MainScreen(navController: NavController, robotViewModel: RobotViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            TitleComponent(title = "TOKENS")
-            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    onClick = {
+                        navController.navigate(AppScreens.EyesScreen.route)
+                        lastInteractionTime = System.currentTimeMillis() // Reset the interaction timer
+                    },
+                    modifier = Modifier.size(width = 80.dp, height = 40.dp)
+                ) {
+                    Text("Ojos")
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                TitleComponent(title = "TOKENS", modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(80.dp))  // Espaciador para centrar el título
+            }
+
             TextField(
                 value = getChatGptToken,
                 onValueChange = {
@@ -108,11 +133,12 @@ fun MainScreen(navController: NavController, robotViewModel: RobotViewModel) {
                     robotViewModel.updateTokenGPT(getChatGptToken)
                     lastInteractionTime = System.currentTimeMillis() // Reset the interaction timer
                 },
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Añadir")
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.weight(1f)) // Empuja todo lo que sigue hacia abajo
+            LazyRowUbicaciones(robotViewModel = robotViewModel, modifier = Modifier.fillMaxWidth())
         }
     }
 }
@@ -141,10 +167,46 @@ suspend fun handleWebSocketMessage(message: String, robotViewModel: RobotViewMod
 }
 
 @Composable
-fun TitleComponent(title: String) {
+fun LazyRowUbicaciones(
+    robotViewModel: RobotViewModel,
+    modifier: Modifier = Modifier,
+) {
+
+    // Observa los cambios en el LiveData desde el ViewModel
+    val destinations by robotViewModel.destinationsList.observeAsState(initial = emptyList())
+
+    LazyRow(
+        modifier = modifier
+            .background(Color.Transparent)
+            .fillMaxWidth()
+            .padding(bottom = 8.dp),
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.SpaceEvenly,
+    ) {
+        items(items = destinations) { destinationName ->
+            Button(
+                modifier = Modifier
+                    .height(30.dp) // Ajusta la altura del botón
+                    .width(100.dp), // Ajusta el ancho del botón,
+                onClick = { robotViewModel.irA(destinationName) },
+                contentPadding =
+                PaddingValues( all = 4.dp )
+            ) {
+                Text(
+                    text = destinationName,
+                    fontSize = 12.sp
+                )
+            }
+            Spacer(modifier = Modifier.size(4.dp))
+        }
+    }
+}
+
+@Composable
+fun TitleComponent(title: String, modifier: Modifier = Modifier) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         Text(
             text = title,
@@ -155,5 +217,3 @@ fun TitleComponent(title: String) {
         )
     }
 }
-
-

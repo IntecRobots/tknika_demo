@@ -459,7 +459,7 @@ class RobotManager @Inject constructor(
     }
 
 
-    fun goTo(destinyGoal: String) {
-        RobotApi.getInstance().startNavigation(0, destinyGoal, 0.12345, 100000, actionListener)
+    fun goTo(destinyGoal: String){
+        RobotApi.getInstance().startNavigation(0, destinyGoal,0.12345, 100000, actionListener)
     }
 }
