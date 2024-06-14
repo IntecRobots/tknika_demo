@@ -24,12 +24,17 @@ import coil.compose.rememberAsyncImagePainter
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import com.intec.t2o.chatGPT.ChatGPTManager
+import com.intec.t2o.network.SocketClient
+import com.intec.t2o.network.WebSocketMessageListener
 import com.intec.template.R
 import com.intec.template.data.Face
 import com.intec.template.data.InteractionState
 import com.intec.template.navigation.AppScreens
 import com.intec.template.ui.viewmodels.RobotViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
@@ -43,9 +48,28 @@ fun EyesScreen(
     val interactionState by robotViewModel.interactionState.collectAsState()
     val speechText by robotViewModel.speechText.collectAsState()
     val chatGPTManager = ChatGPTManager(robotViewModel.tokenGPT)
+    val coroutineScope = rememberCoroutineScope()
 
     var hasSpoken by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
+
+    val socketClient = remember { SocketClient("username", robotViewModel.robotManager) }
+
+    LaunchedEffect(socketClient) {
+        socketClient.connect()
+        socketClient.webSocketListener = object : WebSocketMessageListener {
+            override fun onWebSocketMessageReceived(message: String) {
+                Log.d("WebSocket Message", message)
+                coroutineScope.launch {
+                    handleWebSocketMessage(message, robotViewModel, navController)
+                }
+            }
+
+            override fun onWebSocketEventReceived(event: String, message: String) {
+                Log.d("WebSocket Event", "Event: $event, Message: $message")
+            }
+        }
+    }
 
     LaunchedEffect(speechText) {
         Log.d("speech", speechText)
@@ -254,6 +278,8 @@ fun ImageExample(
         }
     }
 }
+
+
 
 @Composable
 fun FuturisticGradientBackground(content: @Composable () -> Unit) {

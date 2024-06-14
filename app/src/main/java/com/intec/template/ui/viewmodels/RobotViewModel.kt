@@ -56,7 +56,7 @@ class RobotViewModel @Inject constructor(
     private val _places = MutableStateFlow<List<Place>>(emptyList())
     val places: StateFlow<List<Place>> get() = _places.asStateFlow()
 
-    var apiKey: String = preferencesRepository.getApiKey()
+    val apiKey = "mmhfdzb5evj2"
     var tokenGPT: String = preferencesRepository.getTokenGPT()
     val userId = "Wedge_Antilles"
     var tokenProvider: String = ""
@@ -80,7 +80,7 @@ class RobotViewModel @Inject constructor(
             }
         }
 
-        apiKey = preferencesRepository.getApiKey()
+
         tokenGPT = preferencesRepository.getTokenGPT()
     }
 
@@ -111,7 +111,7 @@ class RobotViewModel @Inject constructor(
             try {
                 tokenProvider = fetchToken(apiKey, userId)
                 if (tokenProvider.isNotEmpty()) {
-                    callId = "holajetse"
+                    callId = "nac7"
                     withContext(Dispatchers.Main) {
                         Log.d("RobotViewModel", "Token obtenido exitosamente, iniciando navigateToVideoCallScreen")
                         onSuccess()
