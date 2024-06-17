@@ -51,6 +51,8 @@ class RobotManager @Inject constructor(
     private val personApi = PersonApi.getInstance()
     var faceType = MutableStateFlow(Face.NEUTRAL)
 
+    var rotateListener: CommandListener = CommandListener()
+
     init {
         setupActionListener()
         setupCommandListener()
@@ -373,19 +375,17 @@ class RobotManager @Inject constructor(
     }
 
     fun moveForward() {
-        RobotApi.getInstance().goForward(0, 0.3f, 1f, true, commandListener)
+        RobotApi.getInstance().goForward(0, 1.5F,1000F, true, commandListener)
     }
 
-    fun moveBackward() {
-        RobotApi.getInstance().goBackward(0, 0.3f, commandListener)
-    }
+
 
     fun moveLeft() {
-        RobotApi.getInstance().turnLeft(0, 0.3f, commandListener)
+        RobotApi.getInstance().turnLeft(0, 50F, commandListener)
     }
 
     fun moveRight() {
-        RobotApi.getInstance().turnRight(0, 1.5f, commandListener)
+        RobotApi.getInstance().turnRight(0, 50F, commandListener)
     }
 
     fun moveHeadUp() {
@@ -461,5 +461,10 @@ class RobotManager @Inject constructor(
 
     fun goTo(destinyGoal: String){
         RobotApi.getInstance().startNavigation(0, destinyGoal,0.12345, 100000, actionListener)
+    }
+
+    fun stopMove() {
+        Log.d("STOP MOVE", "Deteniendo movimiento")
+        RobotApi.getInstance().stopMove(0, rotateListener)
     }
 }

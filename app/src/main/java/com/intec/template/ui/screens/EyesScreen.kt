@@ -291,3 +291,5 @@ fun FuturisticGradientBackground(content: @Composable () -> Unit) {
         content()
     }
 }
+
+

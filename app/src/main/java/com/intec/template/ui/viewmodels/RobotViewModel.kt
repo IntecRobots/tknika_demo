@@ -217,5 +217,29 @@ class RobotViewModel @Inject constructor(
     fun irA(destino: String){
         robotManager.goTo(destino)
     }
+
+    fun adelante() {
+        robotManager.moveForward()
+    }
+
+    fun derecha() {
+        robotManager.moveRight()
+    }
+
+    fun izquierda() {
+        robotManager.moveLeft()
+    }
+
+    fun parar() {
+        robotManager.stopMove()
+    }
+
+    fun arriba() {
+        robotManager.moveHeadDown()
+    }
+
+    fun abajo() {
+        robotManager.moveHeadUp()
+    }
 }
 

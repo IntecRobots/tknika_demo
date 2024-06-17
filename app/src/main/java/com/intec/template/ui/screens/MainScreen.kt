@@ -162,6 +162,25 @@ suspend fun handleWebSocketMessage(message: String, robotViewModel: RobotViewMod
                 Log.d("webSocket", "me voy a eyeScreen")
                 navController.navigate(AppScreens.EyesScreen.route)
             }
+            "adelante" -> {
+               robotViewModel.adelante()
+            }
+            "derecha" -> {
+                robotViewModel.derecha()
+
+            }
+            "izquierda" -> {
+                robotViewModel.izquierda()
+            }
+            "detener" -> {
+                robotViewModel.parar()
+            }
+            "abajo" -> {
+                robotViewModel.abajo()
+            }
+            "arriba" -> {
+                robotViewModel.arriba()
+            }
         }
     }
 }
