@@ -26,10 +26,11 @@ class ChatGPTManager(private val apiKey: String) {
 
                     val body = """
                         {
-                            "model": "gpt-4",
+                            "model": "gpt-4o",
                             "messages": [
-                                {   "role": "system",
-                                    "content": "Eres un asistente ubicado en el instituto Teknika y tu nombre es Peter. Responde de manera simple y directa a las preguntas que te hagan."
+                                {   
+                                    "role": "system",
+                                    "content": "Eres un asistente ubicado en el instituto Teknika y tu nombre es Peter. Responde de manera amigable, entusiasta y con una sonrisa a las preguntas que te hagan."
                                 },
                                 {
                                     "role": "user",
@@ -38,6 +39,7 @@ class ChatGPTManager(private val apiKey: String) {
                             ]
                         }
                     """.trimIndent()
+
 
                     outputStream.use { os ->
                         os.write(body.toByteArray())

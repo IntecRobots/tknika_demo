@@ -38,7 +38,7 @@ import kotlinx.coroutines.withContext
 
 val userToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiV2VkZ2VfQW50aWxsZXMiLCJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL1dlZGdlX0FudGlsbGVzIiwiaWF0IjoxNzEzMjU5MDEwLCJleHAiOjE3MTM4NjM4MTV9.slvig4X0I3r8Nm2LHqWFn9rsJ3xokcNSxjPkw5O26S8"
 val userId = "Wedge_Antilles"
-val callId = "TEKNIKA"
+val callId = "TKNIKA"
 
 @Composable
 fun VideoCallScreen(
@@ -71,7 +71,7 @@ fun VideoCallScreen(
     var showLoading by remember { mutableStateOf(true) }
 
     // Paso 1 - Crear un usuario.
-    val user = User(id = userId, name = "TEKNIKA")
+    val user = User(id = userId, name = "TKNIKA")
     StreamVideo.removeClient()
 
     val apiKey = robotViewModel.apiKey

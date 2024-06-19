@@ -88,6 +88,10 @@ fun EyesScreen(
                     Log.d("ChatGPT", "Response spoken: $response")
                 }
             }
+        } else if (speechText.contains("enciender luces", ignoreCase = true)) {
+            robotViewModel.encenderLuces(true);
+        } else if (speechText.contains("apagar luces", ignoreCase = true)) {
+            robotViewModel.apagarLuces(false);
         }
     }
 

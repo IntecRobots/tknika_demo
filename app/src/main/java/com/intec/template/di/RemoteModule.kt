@@ -2,7 +2,9 @@ package com.intec.template.di
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import com.ainirobot.coreservice.client.speech.SkillApi
+import com.example.testar.MqttManager
 import com.intec.t2o.network.SocketClient
 import com.intec.t2o.preferences.PreferencesRepository
 import com.intec.template.robot.RobotConnectionService
@@ -56,5 +58,20 @@ object RemoteModule {
         val username = "AndroidUser" // Este valor podría ser dinámico y venir de alguna configuración o preferencia.
         return SocketClient(username, robotManager)
     }
+
+    @Singleton
+    @Provides
+    fun provideMqttManager(
+        @ApplicationContext context: Context
+    ): MqttManager {
+        return MqttManager(
+            context,
+            "tcp://10.14.0.182:1883", // Cambia esto por tu URI del servidor
+            "/test/topic", // Tema por defecto para suscripción
+            { topic, message -> Log.d("MQTT", "Message received from $topic: $message") }
+        )
+    }
+
+
 
 }

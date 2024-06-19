@@ -10,6 +10,7 @@ import com.ainirobot.coreservice.client.Definition
 import com.ainirobot.coreservice.client.RobotApi
 import com.ainirobot.coreservice.client.listener.CommandListener
 import com.ainirobot.coreservice.client.listener.Person
+import com.example.testar.MqttManager
 import com.intec.t2o.preferences.PreferencesRepository
 import com.intec.template.data.Face
 import com.intec.template.data.InteractionState
@@ -39,7 +40,8 @@ import kotlin.coroutines.resumeWithException
 class RobotViewModel @Inject constructor(
     val robotManager: RobotManager,
     private val skillApiService: SkillApiService,
-    private val preferencesRepository: PreferencesRepository
+    private val preferencesRepository: PreferencesRepository,
+    private val mqttManager: MqttManager
 ) : AndroidViewModel(application = Application()), SpeechRecognitionListener {
 
     private val _recognizedText = MutableLiveData<String>()
@@ -62,11 +64,8 @@ class RobotViewModel @Inject constructor(
     var tokenProvider: String = ""
     var callId: String = ""
 
-    enum class NavigationState {
-        EyesScreen,
-    }
-
-
+    var lucesMqtt: Boolean = false
+        private set
 
     init {
         Log.d("RobotViewModel", "RobotViewModel Init")
@@ -80,9 +79,32 @@ class RobotViewModel @Inject constructor(
             }
         }
 
+        mqttManager.setOnMessageReceived { topic, message ->
+            handleIncomingMessage(topic, message)
+        }
+        mqttManager.subscribeToTopics(listOf("/light/on", "/light/off"))
+        mqttManager.subscribeToTopics(listOf("/test/topic"))
 
         tokenGPT = preferencesRepository.getTokenGPT()
     }
+
+    fun encenderLuces(boolean: Boolean) {
+        lucesMqtt = boolean
+        mqttManager.publish("/light/on", "Luces encendidas: $lucesMqtt")
+        Log.d("luces", "Luces encendidas $lucesMqtt")
+    }
+
+    fun apagarLuces(boolean: Boolean) {
+        lucesMqtt = boolean
+        mqttManager.publish("/light/off", "Luces apagadas: $lucesMqtt")
+        Log.d("luces", "Luces apagadas $lucesMqtt")
+    }
+
+    fun handleIncomingMessage(topic: String, message: String) {
+        // Lógica para manejar el mensaje recibido
+        Log.d("MQTT", "Message received from $topic: $message")
+    }
+
 
     fun detenerFocus() {
         robotManager.stopFocusFollow()
@@ -162,9 +184,6 @@ class RobotViewModel @Inject constructor(
             robotManager.registerPersonListener(true)
         }
     }
-
-
-
 
 
     private fun configurePersonDetection() {
