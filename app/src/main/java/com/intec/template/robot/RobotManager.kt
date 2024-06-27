@@ -51,6 +51,8 @@ class RobotManager @Inject constructor(
     private val personApi = PersonApi.getInstance()
     var faceType = MutableStateFlow(Face.NEUTRAL)
 
+    var neckListener: CommandListener = CommandListener()
+
     var rotateListener: CommandListener = CommandListener()
 
     init {
@@ -389,11 +391,11 @@ class RobotManager @Inject constructor(
     }
 
     fun moveHeadUp() {
-        RobotApi.getInstance().moveHead(0, "absolute", "absolute", 50, 80, headListener)
+        RobotApi.getInstance().moveHead(0, "relative", "relative", 10, 5, neckListener)
     }
 
     fun moveHeadDown() {
-        RobotApi.getInstance().moveHead(0, "absolute", "absolute", 50, 10, headListener)
+        RobotApi.getInstance().moveHead(0, "relative", "relative", 10, -5, neckListener)
     }
 
     fun resetHead() {

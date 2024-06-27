@@ -82,7 +82,7 @@ class RobotViewModel @Inject constructor(
         mqttManager.setOnMessageReceived { topic, message ->
             handleIncomingMessage(topic, message)
         }
-        mqttManager.subscribeToTopics(listOf("/light/on", "/light/off"))
+        mqttManager.subscribeToTopics(listOf("/light/on", "/light/off", "/"))
         mqttManager.subscribeToTopics(listOf("/test/topic"))
 
         tokenGPT = preferencesRepository.getTokenGPT()
